@@ -30,6 +30,100 @@ use usbd_hid::descriptor::generator_prelude::*;
 use usbd_hid::descriptor::MouseReport;
 use usbd_hid::hid_class::HIDClass;
 
+#[gen_hid_descriptor(
+    (collection = APPLICATION, usage_page = GENERIC_DESKTOP, usage = 0x05) = {
+        // Button packet
+        (collection = PHYSICAL, report_id = 0x20) = {
+            (usage_page = GENERIC_DESKTOP, usage = 0x00) = {
+                #[item_settings constant,variable,absolute] unknown=input;
+            };
+            (usage_page = GENERIC_DESKTOP, usage = 0x3b) = {
+                #[item_settings data,variable,absolute] payload_size=input;
+            };
+            (usage_page = BUTTON, usage_min = 1, usage_max = 16) = {
+                #[packed_bits 16] #[item_settings data,variable,absolute] buttons=input;
+            };
+            (usage_page = GENERIC_DESKTOP,) = {
+                (usage = 0x33,) = {
+                    #[item_settings data,variable,absolute] rx=input;
+                };
+                (usage = 0x34,) = {
+                    #[item_settings data,variable,absolute] ry=input;
+                };
+            };
+            (usage_page = GENERIC_DESKTOP, usage = POINTER,) = {
+                (collection = PHYSICAL,) = {
+                    (usage_page = GENERIC_DESKTOP,) = {
+                        (usage = X,) = {
+                            #[item_settings data, variable, absolute] x=input;
+                        };
+                        (usage = Y,) = {
+                            #[item_settings data, variable, absolute] y=input;
+                        };
+                    };
+                };
+            };
+            (usage_page = GENERIC_DESKTOP, usage = POINTER,) = {
+                (collection = PHYSICAL,) = {
+                    (usage_page = GENERIC_DESKTOP,) = {
+                        (usage = Z,) = {
+                            #[item_settings data, variable, absolute] z=input;
+                        };
+                        (usage = 0x35,) = {
+                            #[item_settings data, variable, absolute] rz=input;
+                        };
+                    };
+                };
+            };
+        };
+        // Xbox button packet
+        (collection = PHYSICAL, report_id = 0x07) = {
+            (usage_page = GENERIC_DESKTOP,usage = 0x00) = {
+                #[item_settings constant, variable, absolute] unknown2=input;
+            };
+
+            (usage_page = GENERIC_DESKTOP, usage = 0x3b) = {
+                #[item_settings constant, variable, absolute] payload_size2=input;
+            };
+
+            (usage_page = BUTTON, usage = 0x10) = {
+                #[packed_bits 1] #[item_settings data, variable, absolute] xbox_button=input;
+            }
+        };
+    }
+)]
+struct GamepadReport {
+    // Normal buttons
+    unknown: [u8; 2],
+    payload_size: u8,
+    buttons: u16,
+    rx: u16,
+    ry: u16,
+    x: i16,
+    y: i16,
+    z: i16,
+    rz: i16,
+    // Xbox button
+    unknown2: [u8; 2],
+    payload_size2: u8,
+    xbox_button: u8,
+}
+
+#[repr(C, packed)]
+struct GamepadReportButtons {
+    report_id: u8,
+    // Normal buttons
+    unknown: [u8; 2],
+    payload_size: u8,
+    buttons: u16,
+    rx: u16,
+    ry: u16,
+    x: i16,
+    y: i16,
+    z: i16,
+    rz: i16,
+}
+
 #[entry]
 fn main() -> ! {
     info!("Program start");
@@ -68,10 +162,10 @@ fn main() -> ! {
     };
 
     // Set up the USB HID Class Device driver, providing Mouse Reports
-    let usb_hid = HIDClass::new(bus_ref, MouseReport::desc(), 60);
+    let usb_hid = HIDClass::new(bus_ref, GamepadReport::desc(), 60);
 
     // Create a USB device with a fake VID and PID
-    let usb_device = UsbDeviceBuilder::new(bus_ref, UsbVidPid(0x16c0, 0x27da))
+    let usb_device = UsbDeviceBuilder::new(bus_ref, UsbVidPid(0x24c6, 0xfafe))
         .strings(&[StringDescriptors::default()
             .manufacturer("Fake company")
             .product("Twitchy Mousey")
@@ -93,42 +187,52 @@ fn main() -> ! {
     };
 
     // Move the cursor up and down every 200ms
+    let mut sequence = 0;
+    let mut buttons = GamepadReportButtons {
+        report_id: 0x20, // Button packet
+        unknown: [0, sequence],
+        payload_size: 0x0e, //core::mem::size_of::<GamepadReportButtons>() as u8,
+        buttons: 0,
+        rx: 0,
+        ry: 0,
+        x: 0,
+        y: 0,
+        z: 0,
+        rz: 0,
+    };
+
     loop {
         delay.delay_ms(100);
-
-        let rep_up = MouseReport {
-            x: 0,
-            y: 4,
-            buttons: 0,
-            wheel: 0,
-            pan: 0,
-        };
-        push_mouse_movement(rep_up).ok().unwrap_or(0);
+        buttons.buttons = 0;
+        buttons.unknown[1] = sequence;
+        sequence += 1;
+        push_movement(&buttons).ok().unwrap_or(0);
 
         delay.delay_ms(100);
 
-        let rep_down = MouseReport {
-            x: 0,
-            y: -4,
-            buttons: 0,
-            wheel: 0,
-            pan: 0,
-        };
-        push_mouse_movement(rep_down).ok().unwrap_or(0);
+        buttons.buttons = 0xffff;
+        buttons.unknown[1] = sequence;
+        sequence += 1;
+        push_movement(&buttons).ok().unwrap_or(0);
     }
+}
+
+unsafe fn any_as_u8_slice<T: Sized>(p: &T) -> &[u8] {
+    core::slice::from_raw_parts((p as *const T) as *const u8, core::mem::size_of::<T>())
 }
 
 /// Submit a new mouse movement report to the USB stack.
 ///
 /// We do this with interrupts disabled, to avoid a race hazard with the USB IRQ.
-fn push_mouse_movement(report: MouseReport) -> Result<usize, usb_device::UsbError> {
+fn push_movement(report: &GamepadReportButtons) -> Result<usize, usb_device::UsbError> {
     critical_section::with(|token| {
         // Now interrupts are disabled, grab the global variable and, if
         // available, send it a HID report
-        GADGET
-            .borrow_ref_mut(token)
-            .as_ref()
-            .map(|gadget| gadget.usb_hid.push_input(&report))
+        GADGET.borrow_ref_mut(token).as_ref().map(|gadget| {
+            gadget
+                .usb_hid
+                .push_raw_input(unsafe { any_as_u8_slice(&report) })
+        })
     })
     .unwrap()
 }
