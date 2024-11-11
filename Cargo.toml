@@ -10,18 +10,18 @@ cortex-m-rt = "0.7"
 embedded-hal = { version = "1.0.0" }
 
 defmt = "0.3"
-# defmt-rtt = "0.4"
+defmt-rtt = "0.4"
 panic-probe = { version = "0.3", features = ["print-defmt"] }
-adafruit-kb2040 = "0.8.0"
+#adafruit-kb2040 = "0.8.0"
 usbd-hid = { path = "../usbd-hid" } # "0.8.2"
 usb-device = "0.3.2"
 critical-section = "1.2.0"
-defmt-serial = "0.10.0"
+#defmt-serial = "0.10.0"
 static_cell = "2.1.0"
 portable-atomic = { version = "1.9.0", features = ["critical-section"] }
 
 # We're using a Pico by default on this template
-#rp-pico = "0.9"
+rp-pico = "0.9"
 
 # but you can use any BSP. Uncomment this to use the pro_micro_rp2040 BSP instead
 # sparkfun-pro-micro-rp2040 = "0.8"
