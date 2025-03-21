@@ -116,35 +116,35 @@ fn main() -> ! {
         [
             [
                 // Player one
-                pins.gpio0.into_pull_up_input().into_dyn_pin(), // A4
-                pins.gpio1.into_pull_up_input().into_dyn_pin(), // A3
-                pins.gpio2.into_pull_up_input().into_dyn_pin(), // B1
-                pins.gpio3.into_pull_up_input().into_dyn_pin(), // B2
-                pins.gpio4.into_pull_up_input().into_dyn_pin(), // A1
-                pins.gpio5.into_pull_up_input().into_dyn_pin(), // A2
-                pins.gpio6.into_pull_up_input().into_dyn_pin(), // Start button
-                pins.gpio7.into_pull_up_input().into_dyn_pin(), // North
-                pins.gpio8.into_pull_up_input().into_dyn_pin(), // West
-                pins.gpio9.into_pull_up_input().into_dyn_pin(), // East
-                pins.gpio10.into_pull_up_input().into_dyn_pin(), // South
-                pins.gpio11.into_pull_up_input().into_dyn_pin(), // B3
-                pins.gpio12.into_pull_up_input().into_dyn_pin(), // B4
+                pins.gpio10.into_pull_up_input().into_dyn_pin(), // A4
+                pins.gpio11.into_pull_up_input().into_dyn_pin(), // A3
+                pins.gpio17.into_pull_up_input().into_dyn_pin(), // B1
+                pins.gpio16.into_pull_up_input().into_dyn_pin(), // B2
+                pins.gpio13.into_pull_up_input().into_dyn_pin(), // A1
+                pins.gpio12.into_pull_up_input().into_dyn_pin(), // A2
+                pins.gpio9.into_pull_up_input().into_dyn_pin(),  // Start button
+                pins.gpio27.into_pull_up_input().into_dyn_pin(), // North
+                pins.gpio26.into_pull_up_input().into_dyn_pin(), // West
+                pins.gpio22.into_pull_up_input().into_dyn_pin(), // East
+                pins.gpio28.into_pull_up_input().into_dyn_pin(), // South
+                pins.gpio15.into_pull_up_input().into_dyn_pin(), // B3
+                pins.gpio14.into_pull_up_input().into_dyn_pin(), // B4
             ],
             [
                 // Player two
-                pins.gpio13.into_pull_up_input().into_dyn_pin(),
-                pins.gpio14.into_pull_up_input().into_dyn_pin(),
-                pins.gpio15.into_pull_up_input().into_dyn_pin(),
-                pins.gpio16.into_pull_up_input().into_dyn_pin(),
-                pins.gpio17.into_pull_up_input().into_dyn_pin(),
-                pins.gpio18.into_pull_up_input().into_dyn_pin(),
-                pins.gpio19.into_pull_up_input().into_dyn_pin(),
-                pins.gpio20.into_pull_up_input().into_dyn_pin(),
-                pins.gpio21.into_pull_up_input().into_dyn_pin(),
-                pins.gpio22.into_pull_up_input().into_dyn_pin(),
-                pins.gpio26.into_pull_up_input().into_dyn_pin(),
-                pins.gpio27.into_pull_up_input().into_dyn_pin(),
-                pins.gpio28.into_pull_up_input().into_dyn_pin(),
+                pins.gpio3.into_pull_up_input().into_dyn_pin(),
+                pins.gpio2.into_pull_up_input().into_dyn_pin(),
+                pins.gpio4.into_pull_up_input().into_dyn_pin(),
+                pins.gpio5.into_pull_up_input().into_dyn_pin(),
+                pins.gpio6.into_pull_up_input().into_dyn_pin(),
+                pins.gpio7.into_pull_up_input().into_dyn_pin(),
+                pins.gpio8.into_pull_up_input().into_dyn_pin(),
+                pins.gpio20.into_pull_up_input().into_dyn_pin(), // North
+                pins.gpio19.into_pull_up_input().into_dyn_pin(), // West
+                pins.gpio18.into_pull_up_input().into_dyn_pin(), // East
+                pins.gpio21.into_pull_up_input().into_dyn_pin(), // South
+                pins.gpio0.into_pull_up_input().into_dyn_pin(),
+                pins.gpio1.into_pull_up_input().into_dyn_pin(),
             ],
         ]
     });
