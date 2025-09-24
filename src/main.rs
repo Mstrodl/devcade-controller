@@ -150,18 +150,16 @@ fn main() -> ! {
     });
 
     // Create the USB Bus Allocator
-    let usb_bus = UsbBusAllocator::new(hal::usb::UsbBus::new(
-        pac.USBCTRL_REGS,
-        pac.USBCTRL_DPRAM,
-        clocks.usb_clock,
-        true,
-        &mut pac.RESETS,
-    ));
-    let bus_ref = unsafe {
-        static mut USB_BUS: Option<UsbBusAllocator<hal::usb::UsbBus>> = None;
-        USB_BUS = Some(usb_bus);
-        USB_BUS.as_ref().unwrap()
-    };
+    static USB_BUS: StaticCell<UsbBusAllocator<hal::usb::UsbBus>> = StaticCell::new();
+    let bus_ref = USB_BUS.init_with(|| {
+        UsbBusAllocator::new(hal::usb::UsbBus::new(
+            pac.USBCTRL_REGS,
+            pac.USBCTRL_DPRAM,
+            clocks.usb_clock,
+            true,
+            &mut pac.RESETS,
+        ))
+    });
 
     // Set up the USB HID Class Device driver, providing Mouse Reports
     let player_one = create_hid_class(bus_ref);
