@@ -13,7 +13,7 @@ defmt = "0.3"
 defmt-rtt = "0.4"
 panic-probe = { version = "0.3", features = ["print-defmt"] }
 #adafruit-kb2040 = "0.8.0"
-usbd-hid = { path = "../usbd-hid" } # "0.8.2"
+usbd-hid = { git = "https://github.com/Mstrodl/usbd-hid", branch = "feature/mstrodl/xbox360" } # "0.8.2"
 usb-device = "0.3.2"
 critical-section = "1.2.0"
 #defmt-serial = "0.10.0"
