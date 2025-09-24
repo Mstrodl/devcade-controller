@@ -214,11 +214,11 @@ fn main() -> ! {
                 }
                 if index < 2 {
                     // Actual buttons
-                    report.buttons = 1 << index;
+                    report.buttons |= 1 << index;
                 } else if index < 2 + 4 {
-                    report.buttons = 1 << (index + 2);
+                    report.buttons |= 1 << (index + 2);
                 } else if index < 2 + 4 + 1 {
-                    report.misc_buttons = 1 << 4;
+                    report.misc_buttons |= 1 << 4;
                 } else if index < 2 + 4 + 1 + 4 {
                     // Joysticks
                     let value = if index & 1 == 1 { i16::MAX } else { i16::MIN };
